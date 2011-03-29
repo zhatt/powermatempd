@@ -1,14 +1,18 @@
 CXXFLAGS=-Wall -Wextra -g
 
-all:	powermatempd
+all: powermatempd pmtrace
 
-OBJS = main.o powermate.o mpdpowermate.o
+LIBOBJS = powermate.o mpdpowermate.o
+OBJS = $(LIBOBJS) main.o pmtrace.o
 HEADERS = powermate.h mpdpowermate.h
 
 OBJS : $(HEADERS)
 
-powermatempd: $(OBJS)
-	$(CXX) $(OBJS) -o powermatempd
+powermatempd: $(LIBOBJS) main.o
+	$(CXX) $^ -o $@
+
+pmtrace: $(LIBOBJS) pmtrace.o
+	$(CXX) $^ -o $@
 
 clean:
-	rm -f *.o *~ powermatempd
+	rm -f *.o *~ powermatempd pmtrace

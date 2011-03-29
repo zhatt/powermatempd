@@ -6,7 +6,7 @@
 #include <vector>
 
 #include <linux/input.h>
-
+#include <fcntl.h>
 
 class Powermate {
  public:
@@ -24,7 +24,7 @@ class Powermate {
 	Powermate();
 	~Powermate();
 
-	State waitForInput();
+	bool waitForInput( State& state );
 
 	void setLedBrightnessPercent( int percentOn );
 	void setAllLedSettings( unsigned staticBrightness, unsigned pulseSpeed,
@@ -32,7 +32,10 @@ class Powermate {
 	                        bool pulseAwake );
 
 	bool openDevice();
-	bool openDevice( const std::string& device );
+	bool openDevice( const std::string& device, int flags = O_RDWR );
+
+	void setTraceRaw( bool value ) { traceRaw_ = value; }
+	void setTraceEvents( bool value ) { traceEvents_ = value; }
 
  private:
 	void processEvent( const input_event& event );
@@ -40,6 +43,8 @@ class Powermate {
 	bool pressed_;
 	int position_;
 	State state_;
+	bool traceRaw_;
+	bool traceEvents_;
 
 	std::vector<input_event> eventBuffer;
 	std::vector<input_event>::iterator eventBufferNext;

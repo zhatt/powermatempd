@@ -8,6 +8,8 @@
 
 #include "powermate.h"
 
+#include <fcntl.h>
+
 using namespace std;
 
 
@@ -128,14 +130,15 @@ int main( ) {
 	Powermate powermate;
 	mpdstate.powermate = &powermate;
 
-	bool success = powermate.openDevice();
+	//	bool success = powermate.openDevice();
+	bool success = powermate.openDevice( "replay.bin", O_RDONLY );
 
 	if ( ! success ) {
 		cerr << "Unable open Powermate" << endl;
 		return 1;
 	}
 
-	mpd_off( &mpdstate );
+	//	mpd_off( &mpdstate );
 
 	return 0;
 }

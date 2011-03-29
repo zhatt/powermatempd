@@ -9,12 +9,15 @@
 #include <cerrno>
 
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 
 using namespace std;
 
 Powermate::Powermate() :
-	fd_( -1 ), pressed_( false ), position_( 0 ) {
+	fd_( -1 ), pressed_( false ), position_( 0 ), traceRaw_( false ),
+	traceEvents_( false )
+{
 	eventBuffer.resize( 32 );
 	eventBufferNext = eventBufferLast = eventBuffer.end();
 }
@@ -30,6 +33,13 @@ static const string griffenNames[] = {
 	"Griffin PowerMate",
 	"Griffin SoundKnob"
 };
+
+bool Powermate::openDevice( const string& device, int flags ) {
+	assert( fd_ == -1 );
+	int trialFd = open( device.c_str(), flags );
+	if ( trialFd != -1 ) fd_ = trialFd;
+	return fd_ != 1;
+}
 
 bool Powermate::openDevice() {
 	assert( fd_ == -1 );
@@ -68,7 +78,7 @@ bool Powermate::openDevice() {
 		}
 	}
 
-	return fd_ != -1;;
+	return fd_ != -1;
 }
 
 void Powermate::setLedBrightnessPercent( int percentOn ) {
@@ -107,7 +117,9 @@ void Powermate::setAllLedSettings( unsigned staticBrightness,
 }
 
 
-Powermate::State Powermate::waitForInput() {
+bool Powermate::waitForInput( Powermate::State& state ) {
+	bool success = false;
+
 	if ( eventBufferNext != eventBufferLast ) {
 		// Return event from previous read.
 	} else {
@@ -129,17 +141,23 @@ Powermate::State Powermate::waitForInput() {
 	if ( eventBufferNext != eventBufferLast ) {
 		processEvent( *eventBufferNext );
 		++eventBufferNext;
+		success = true;
 	}
 
-	return state_;
+	state = state_;
+	return success;
 }
 
 void Powermate::processEvent( const input_event& event ) {
-	#if 0
-	//FIXME
-	cerr << "type=0x%04x, code=0x%04x, value=%d\n",
-		ev->type, ev->code, (int)ev->value );
-	#endif
+
+	if ( traceRaw_ ) {
+		ios_base::fmtflags ff = cout.flags();
+		cout << hex << setfill('0')
+		     << "input_event: type=0x" << setw(4) << event.type 
+		     << ", code=0x" << setw(4) << event.code
+		     << ", value=" << dec << event.value << "\n";
+		cout.flags( ff );
+	}
 
 	switch( event.type ) {
 	case EV_MSC:
@@ -151,9 +169,11 @@ void Powermate::processEvent( const input_event& event ) {
 
 		else {
 			state_.position_ += event.value;
-			cout << "Button was rotated " << event.value
-			     << " units; Offset from start is now " << state_.position_
-			     << " units" << endl;
+			if ( traceEvents_ ) {
+				cout << "Button was rotated " << event.value
+				     << " units; Offset from start is now " << state_.position_
+				     << " units" << endl;
+			}
 		}
 		break;
 
@@ -161,11 +181,13 @@ void Powermate::processEvent( const input_event& event ) {
 		if ( event.code != BTN_0 ) {
 			cerr << "Warning: unexpected key event" << endl;
 		} else {
-			cout << "Button was "
-			     << ( event.value ? "pressed" : "released" )
-			     << endl;
-
 			state_.pressed_ = event.value;
+
+			if ( traceEvents_ ) {
+				cout << "Button was "
+				     << ( event.value ? "pressed" : "released" )
+				     << endl;
+			}
 		}
 		break;
 
