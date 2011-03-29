@@ -63,6 +63,7 @@ int main( int argc, char* argv[] ) {
 
 	Powermate powermate;
 	powermate.setTraceRaw( true );
+	powermate.setTraceEvents( true );
 
 	success = powermate.openDevice( device, O_RDONLY );
 

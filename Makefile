@@ -6,7 +6,7 @@ LIBOBJS = powermate.o mpdpowermate.o
 OBJS = $(LIBOBJS) main.o pmtrace.o
 HEADERS = powermate.h mpdpowermate.h
 
-OBJS : $(HEADERS)
+$(OBJS) : $(HEADERS)
 
 powermatempd: $(LIBOBJS) main.o
 	$(CXX) $^ -o $@

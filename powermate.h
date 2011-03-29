@@ -13,7 +13,8 @@ class Powermate {
 	struct State {
 		bool pressed_;
 		int position_;
-		bool ledIsOn_;
+
+		State() : pressed_( false ), position_( 0 ) {};
 	};
 
 	static const unsigned maxInputEventDevices_ = 16;
@@ -46,9 +47,9 @@ class Powermate {
 	bool traceRaw_;
 	bool traceEvents_;
 
-	std::vector<input_event> eventBuffer;
-	std::vector<input_event>::iterator eventBufferNext;
-	std::vector<input_event>::iterator eventBufferLast;
+	std::vector<input_event> eventBuffer_;
+	std::vector<input_event>::iterator eventBufferNext_;
+	std::vector<input_event>::iterator eventBufferLast_;
 };
 
 #endif // POWERMATE_H

@@ -18,8 +18,8 @@ Powermate::Powermate() :
 	fd_( -1 ), pressed_( false ), position_( 0 ), traceRaw_( false ),
 	traceEvents_( false )
 {
-	eventBuffer.resize( 32 );
-	eventBufferNext = eventBufferLast = eventBuffer.end();
+	eventBuffer_.resize( 32 );
+	eventBufferNext_ = eventBufferLast_ = eventBuffer_.end();
 }
 
 Powermate::~Powermate() {
@@ -38,7 +38,7 @@ bool Powermate::openDevice( const string& device, int flags ) {
 	assert( fd_ == -1 );
 	int trialFd = open( device.c_str(), flags );
 	if ( trialFd != -1 ) fd_ = trialFd;
-	return fd_ != 1;
+	return fd_ != -1;
 }
 
 bool Powermate::openDevice() {
@@ -120,27 +120,27 @@ void Powermate::setAllLedSettings( unsigned staticBrightness,
 bool Powermate::waitForInput( Powermate::State& state ) {
 	bool success = false;
 
-	if ( eventBufferNext != eventBufferLast ) {
+	if ( eventBufferNext_ != eventBufferLast_ ) {
 		// Return event from previous read.
 	} else {
-		int bytesRead = read( fd_, &eventBuffer[0],
-		              sizeof(struct input_event) * eventBuffer.size() );
+		int bytesRead = read( fd_, &eventBuffer_[0],
+		              sizeof(struct input_event) * eventBuffer_.size() );
 
 		if ( bytesRead > 0 ) {
 			unsigned numEvents = bytesRead / sizeof(struct input_event);
 
-			eventBufferNext = eventBuffer.begin();
-			eventBufferLast = eventBufferNext + numEvents;
+			eventBufferNext_ = eventBuffer_.begin();
+			eventBufferLast_ = eventBufferNext_ + numEvents;
 
 		} else {
 			cerr << "read() failed: " << strerror(errno) << endl;;
-			eventBufferNext = eventBufferLast = eventBuffer.end();
+			eventBufferNext_ = eventBufferLast_ = eventBuffer_.end();
 		}
 	}
 
-	if ( eventBufferNext != eventBufferLast ) {
-		processEvent( *eventBufferNext );
-		++eventBufferNext;
+	if ( eventBufferNext_ != eventBufferLast_ ) {
+		processEvent( *eventBufferNext_ );
+		++eventBufferNext_;
 		success = true;
 	}
 
@@ -201,4 +201,3 @@ void Powermate::processEvent( const input_event& event ) {
 		cerr << "Warning: unexpected event type" << endl;
 	}
 }
-
