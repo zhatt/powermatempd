@@ -99,6 +99,8 @@ void Powermate::setAllLedSettings( unsigned staticBrightness,
 	                           unsigned pulseTable, bool pulseAsleep,
 	                           bool pulseAwake) {
 
+	assert( fd_ != -1 );
+
 	staticBrightness &= 0xFF;
 
 	if ( pulseSpeed > maxPulseSpeed ) pulseSpeed = maxPulseSpeed;
@@ -118,6 +120,8 @@ void Powermate::setAllLedSettings( unsigned staticBrightness,
 
 
 bool Powermate::waitForInput( Powermate::State& state ) {
+	assert( fd_ != -1 );
+
 	bool success = false;
 
 	if ( eventBufferNext_ != eventBufferLast_ ) {
