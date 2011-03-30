@@ -11,12 +11,18 @@ using namespace std;
 int main( ) {
 
 	Powermate powermate;
-	Mpd mpd;
-
 	bool success = powermate.openDevice();
 
 	if ( ! success ) {
 		cerr << "Unable open Powermate" << endl;
+		return 1;
+	}
+
+	Mpd mpd;
+	success = mpd.connect( "music1." );
+
+	if ( ! success ) {
+		cerr << "Unable connect to mpd" << endl;
 		return 1;
 	}
 

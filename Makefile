@@ -9,10 +9,10 @@ HEADERS = powermate.h mpd.h powermatempd.h
 $(OBJS) : $(HEADERS)
 
 powermatempd: $(LIBOBJS) main.o
-	$(CXX) $^ -o $@
+	$(CXX) $^ -o $@ -lmpdclient
 
 pmtrace: $(LIBOBJS) pmtrace.o
-	$(CXX) $^ -o $@
+	$(CXX) $^ -o $@ -lmpdclient
 
 clean:
 	rm -f *.o *~ powermatempd pmtrace
