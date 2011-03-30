@@ -1,136 +1,17 @@
 
 
-
-#include <string.h>
-#include <stdlib.h>
+#include "powermate.h"
+#include "mpd.h"
+#include "powermatempd.h"
 
 #include <iostream>
 
-#include "powermate.h"
-#include "mpd.h"
-
-#include <fcntl.h>
-
 using namespace std;
-
-
-const int MIN_ROTATION = 5;
-struct mpdstate {
-	Powermate* powermate;
-	Mpd* mpd;
-	bool playing;
-	int position; // Smoothed by MIN_ROTATION
-	bool pressed_and_rotated;
-};
-
-void mpd_off( struct mpdstate* mpdstate ) {
-	mpdstate->mpd->off();
-	mpdstate->playing = false;
-	mpdstate->powermate->setLedBrightnessPercent( 0 );
-}
-
-void mpd_on( struct mpdstate* mpdstate ) {
-	mpdstate->mpd->on();
-	mpdstate->playing = true;
-	mpdstate->powermate->setLedBrightnessPercent( 100 );
-}
-
-void mpd_toggle_on_off( struct mpdstate* mpdstate ) {
-	if ( mpdstate->playing ) {
-		mpd_off( mpdstate );
-	} else {
-		mpd_on( mpdstate );
-	}
-}
-
-void mpd_prev_track( struct mpdstate* mpdstate ) {
-	mpdstate->mpd->previousTrack();
-}
-
-void mpd_next_track( struct mpdstate* mpdstate ) {
-	mpdstate->mpd->nextTrack();
-}
-
-void mpd_vol_up( struct mpdstate* mpdstate ) {
-	mpdstate->mpd->volumeUp();
-}
-
-void mpd_vol_down( struct mpdstate* mpdstate ) {
-	mpdstate->mpd->volumeDown();
-}
-
-void process_state_change( struct mpdstate* mpdstate,
-                           const Powermate::State& pmstate,
-                           const Powermate::State& pmlaststate ) {
-	/*
-	 * press - do nothing
-	 * release - toggle play, set LED playing state
-	 * press and rotate - change volume
-	 * rotate - switch song
-	 * release after rotate - set LED to playing state
-	 */
-
-	bool rotated = abs( pmstate.position_ - mpdstate->position ) > MIN_ROTATION;
-
-	if ( pmstate.pressed_ && ! pmlaststate.pressed_ ) {
-		/*
-		 * Newly pressed.
-		 */
-
-		mpdstate->pressed_and_rotated = false;
-
-	} else if ( ! pmstate.pressed_ && pmlaststate.pressed_ ) {
-		/*
-		 * Released
-		 */
-		if ( ! mpdstate->pressed_and_rotated ) {
-			mpd_toggle_on_off( mpdstate );
-
-		} else {
-			/*
-			 * We changed volume.  Nothing more to do.
-			 */
-		}
-
-	} else if ( rotated ) {
-		if ( pmstate.pressed_ ) {
-			/*
-			 * Press and rotate.
-			 */
-			mpdstate->pressed_and_rotated = true;
-
-			if ( pmstate.position_ > mpdstate->position ) {
-				mpd_vol_up( mpdstate );
-			} else {
-				mpd_vol_down( mpdstate );
-			}
-
-		} else {
-			/*
-			 * Rotate
-			 */
-			if ( pmstate.position_ > mpdstate->position ) {
-				mpd_next_track( mpdstate );
-			} else {
-				mpd_prev_track( mpdstate );
-			}
-		}
-
-		mpdstate->position = pmstate.position_;
-	}
-
-}
 
 int main( ) {
 
-	struct mpdstate mpdstate;
-	memset( &mpdstate, 0, sizeof(mpdstate) );
-
 	Powermate powermate;
-	mpdstate.powermate = &powermate;
-
 	Mpd mpd;
-	mpdstate.mpd = &mpd;
 
 	bool success = powermate.openDevice();
 
@@ -139,7 +20,9 @@ int main( ) {
 		return 1;
 	}
 
-	//	mpd_off( &mpdstate );
+	PowermateMpd pmmpd( powermate, mpd );
+
+	pmmpd.run();
 
 	return 0;
 }
