@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "powermate.h"
+#include "mpd.h"
 
 #include <fcntl.h>
 
@@ -16,19 +17,20 @@ using namespace std;
 const int MIN_ROTATION = 5;
 struct mpdstate {
 	Powermate* powermate;
+	Mpd* mpd;
 	bool playing;
 	int position; // Smoothed by MIN_ROTATION
 	bool pressed_and_rotated;
 };
 
 void mpd_off( struct mpdstate* mpdstate ) {
-	cout << "Turn OFF\n";
+	mpdstate->mpd->off();
 	mpdstate->playing = false;
 	mpdstate->powermate->setLedBrightnessPercent( 0 );
 }
 
 void mpd_on( struct mpdstate* mpdstate ) {
-	cout << "Turn ON\n";
+	mpdstate->mpd->on();
 	mpdstate->playing = true;
 	mpdstate->powermate->setLedBrightnessPercent( 100 );
 }
@@ -42,22 +44,19 @@ void mpd_toggle_on_off( struct mpdstate* mpdstate ) {
 }
 
 void mpd_prev_track( struct mpdstate* mpdstate ) {
-	(void) mpdstate;
-	cout << "PREV track\n";
+	mpdstate->mpd->previousTrack();
 }
 
 void mpd_next_track( struct mpdstate* mpdstate ) {
-	(void) mpdstate;
-	cout << "NEXT track\n";
+	mpdstate->mpd->nextTrack();
 }
 
 void mpd_vol_up( struct mpdstate* mpdstate ) {
-	(void) mpdstate;
-	cout << "Volume UP\n";
+	mpdstate->mpd->volumeUp();
 }
+
 void mpd_vol_down( struct mpdstate* mpdstate ) {
-	(void) mpdstate;
-	cout << "Volume DOWN\n";
+	mpdstate->mpd->volumeDown();
 }
 
 void process_state_change( struct mpdstate* mpdstate,
@@ -130,8 +129,10 @@ int main( ) {
 	Powermate powermate;
 	mpdstate.powermate = &powermate;
 
-	//	bool success = powermate.openDevice();
-	bool success = powermate.openDevice( "replay.bin", O_RDONLY );
+	Mpd mpd;
+	mpdstate.mpd = &mpd;
+
+	bool success = powermate.openDevice();
 
 	if ( ! success ) {
 		cerr << "Unable open Powermate" << endl;
