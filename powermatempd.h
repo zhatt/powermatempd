@@ -1,6 +1,6 @@
 
-#ifndef MPDPOWERMATE_H
-#define MPDPOWERMATE_H
+#ifndef POWERMATEMPD_H
+#define POWERMATEMPD_H
 
 #include "powermate.h"
 
@@ -12,4 +12,4 @@ class MpdPowermate {
 
 };
 
-#endif // MPDPOWERMATE_H
+#endif // POWERMATEMPD_H
