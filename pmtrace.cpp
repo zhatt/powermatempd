@@ -9,63 +9,78 @@
 
 using namespace std;
 
-bool parseArgs( string& device, int argc, char* argv[] ) {
+struct Options {
+	string device;
+	bool traceRaw;
+	bool traceEvents;
+
+	Options() : traceRaw( false ), traceEvents( false ) {}
+};
+
+bool parseArgs( Options& options, int argc, char* argv[] ) {
 	bool success = true;
 
-	while (1) {
-		static const struct option long_options[] = {
-			{ "device", required_argument, 0,  0 },
-			{ 0,        0,                 0,  0 }
-               };
+	while ( true ) {
+		enum {
+			DEVICE,
+			TRACERAW,
+			TRACEEVENTS,
+		};
 
-               int option_index = 0;
-               int c = getopt_long( argc, argv, "", long_options, &option_index);
+		static const struct option longOptions[] = {
+			{ "device", required_argument, 0,  DEVICE },
+			{ "traceraw", no_argument,     0,  TRACERAW },
+			{ "traceevents", no_argument,  0,  TRACEEVENTS },
+			{ 0,	    0,		       0,  0 }
+	       };
 
-               if (c == -1)
-                   break;
+	       int optionIndex = 0;
+	       int c = getopt_long( argc, argv, "", longOptions, &optionIndex);
 
-               switch (c) {
-               case 0:
-		       switch ( option_index ) {
-		       case 0: // --device
-			       assert( optarg );
-			       device = optarg;
-			       break;
+	       if (c == -1) break;
 
-		       default:
-			       assert ( 0 );
-			       break;
-		       }
-
+	       switch (c) {
+	       case DEVICE:
+		       assert( optarg );
+		       options.device = optarg;
 		       break;
 
-               default:
+	       case TRACERAW:
+		       options.traceRaw = true;
+		       break;
+
+	       case TRACEEVENTS:
+		       options.traceEvents = true;
+		       break;
+
+	       default:
 		       success = false;
 		       break;
-               }
-           }
+	       }
 
-           if (optind < argc) {
-		   success = false;
-	   }
+	}
 
-	   return success;
+	if (optind < argc) {
+		success = false;
+	}
+
+	return success;
 }
 
 int main( int argc, char* argv[] ) {
-	string device;
+	Options options;
 
-	bool success = parseArgs( device, argc, argv );
+	bool success = parseArgs( options, argc, argv );
 	if ( ! success ) {
 		cerr << "Unable to parse command line" << endl;
 		return 1;
 	}
 
 	Powermate powermate;
-	powermate.setTraceRaw( true );
-	powermate.setTraceEvents( true );
+	powermate.setTraceRaw( options.traceRaw );
+	powermate.setTraceEvents( options.traceEvents );
 
-	success = powermate.openDevice( device, O_RDONLY );
+	success = powermate.openDevice( options.device, O_RDONLY );
 
 	if ( ! success ) {
 		cerr << "Unable open Powermate" << endl;
