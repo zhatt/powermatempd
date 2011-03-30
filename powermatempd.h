@@ -20,7 +20,7 @@ class PowermateMpd {
 	Mpd mpd_;
 
 	bool playing_;
-	bool position_;  // Smoothed by minRotation;
+	int position_;  // Smoothed by minRotation;
 	bool pressedAndRotated_;
 };
 
