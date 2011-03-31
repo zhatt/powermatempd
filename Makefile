@@ -1,6 +1,7 @@
-CXXFLAGS=-Wall -Wextra -g
+CXXFLAGS = -Wall -Wextra -g
+SUBDIRS = sample
 
-all: powermatempd pmtrace
+all: powermatempd pmtrace subdirs
 
 LIBOBJS = powermate.o mpd.o powermatempd.o
 OBJS = $(LIBOBJS) main.o pmtrace.o
@@ -14,5 +15,18 @@ powermatempd: $(LIBOBJS) main.o
 pmtrace: $(LIBOBJS) pmtrace.o
 	$(CXX) $^ -o $@ -lmpdclient
 
-clean:
+.PHONY : subdirs $(SUBDIRS)
+
+subdirs: $(SUBDIRS)
+
+$(SUBDIRS) :
+	$(MAKE) -C $@
+
+cleanall : clean cleansubs
+
+clean : 
 	rm -f *.o *~ powermatempd pmtrace
+
+cleansubs :
+	$(MAKE) -C $(SUBDIRS) clean
+
