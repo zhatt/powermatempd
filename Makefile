@@ -1,4 +1,6 @@
-CXXFLAGS = -Wall -Wextra -g
+CXXFLAGS = -Wall -Wextra -g -march=i486 -mtune=i686 -Os
+LDFLAGS=-Wl,-O1
+
 SUBDIRS = sample
 
 all: powermatempd pmtrace subdirs
