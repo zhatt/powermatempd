@@ -10,24 +10,19 @@
 #include <linux/input.h>
 #include <assert.h>
 
-#define NO_OP  .type=0x0000, .code=0x0000, .value=0
-#define ROTATE(units)  .type=0x0002, .code=0x0007, .value=(units)
-#define BUTTON_PRESSED .type=0x0001, .code=0x0100, .value=1
-#define BUTTON_RELEASED   .type=0x0001, .code=0x0100, .value=0
-
 static const struct input_event events[] = {
 #include "inputtrace.h"
 };
 
 int main() {
 	unsigned num_events = sizeof(events) / sizeof(events[0]);
-	int rfd = open( "/tmp/xxxread", O_RDONLY | O_NONBLOCK );  // FIXME
-	int wfd = open( "/tmp/xxxwrite", O_WRONLY );
+	int rfd = open( "/tmp/xxxwrite", O_RDONLY | O_NONBLOCK );  // FIXME
+	int wfd = open( "/tmp/xxxread", O_WRONLY );
 	assert( rfd != -1 );
 	assert( wfd != -1 );
 
 	for ( unsigned i = 0; i < num_events; i++ ) {
-		struct timeval tv = { .tv_sec = 10, .tv_usec = 10000 };
+		struct timeval tv = events[i].time;
 
 		while ( tv.tv_sec || tv.tv_usec ) {
 			fd_set rfds;
