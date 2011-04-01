@@ -15,17 +15,16 @@
 using namespace std;
 
 Powermate::Powermate() :
-	fd_( -1 ), pressed_( false ), position_( 0 ), traceRaw_( false ),
-	traceEvents_( false )
+	readFd_( -1 ), writeFd_( -1 ), pressed_( false ), position_( 0 ),
+	traceRaw_( false ), traceEvents_( false )
 {
 	eventBuffer_.resize( 32 );
 	eventBufferNext_ = eventBufferLast_ = eventBuffer_.end();
 }
 
 Powermate::~Powermate() {
-	if ( fd_ != -1 ) {
-		close( fd_ );
-	}
+	if ( readDeviceIsOpened() ) close( readFd_ );
+	if ( writeDeviceIsOpened() && writeFd_ != readFd_ ) close( writeFd_ );
 }
 
 
@@ -34,15 +33,29 @@ static const string griffenNames[] = {
 	"Griffin SoundKnob"
 };
 
-bool Powermate::openDevice( const string& device, int flags ) {
-	assert( fd_ == -1 );
-	int trialFd = open( device.c_str(), flags );
-	if ( trialFd != -1 ) fd_ = trialFd;
-	return fd_ != -1;
+bool Powermate::openDevice( const string& device ) {
+	assert( ! deviceIsOpened() );
+	int trialFd = open( device.c_str(), O_RDWR );
+	if ( trialFd != -1 ) readFd_ = writeFd_ = trialFd;
+	return trialFd != -1;
+}
+
+bool Powermate::openReadDevice( const string& device ) {
+	assert( ! deviceIsOpened() );
+	int trialFd = open( device.c_str(), O_RDONLY );
+	if ( trialFd != -1 ) readFd_ = trialFd;
+	return trialFd != -1;
+}
+
+bool Powermate::openWriteDevice( const string& device ) {
+	assert( ! deviceIsOpened() );
+	int trialFd = open( device.c_str(), O_WRONLY );
+	if ( trialFd != -1 ) writeFd_ = trialFd;
+	return trialFd != -1;
 }
 
 bool Powermate::openDevice() {
-	assert( fd_ == -1 );
+	assert( ! deviceIsOpened() );
 	size_t maxGriffenNameLen = 0;
 
 	for ( unsigned i = 0; i < sizeof(griffenNames) / sizeof(griffenNames[0]); i++ ) {
@@ -66,19 +79,19 @@ bool Powermate::openDevice() {
 
 				for ( unsigned i = 0; i < sizeof(griffenNames) / sizeof(griffenNames[0]); i++ ) {
 					if ( griffenNames[i].find( buf ) == 0 ) {
-						fd_ = trialFd;
+						readFd_ = writeFd_ = trialFd;
 						break;
 					}
 				}
 			}
 
-			if ( fd_ != -1 ) break;
+			if ( deviceIsOpened() ) break;
 
 			close( trialFd );
 		}
 	}
 
-	return fd_ != -1;
+	return deviceIsOpened();
 }
 
 void Powermate::setLedBrightnessPercent( int percentOn ) {
@@ -99,7 +112,7 @@ void Powermate::setAllLedSettings( unsigned staticBrightness,
 	                           unsigned pulseTable, bool pulseAsleep,
 	                           bool pulseAwake) {
 
-	assert( fd_ != -1 );
+	assert( writeDeviceIsOpened() );
 
 	staticBrightness &= 0xFF;
 
@@ -114,20 +127,20 @@ void Powermate::setAllLedSettings( unsigned staticBrightness,
 	ev.value = staticBrightness | (pulseSpeed << 8) | (pulseTable << 17) |
 		(pulseAsleep << 19) | (pulseAwake << 20);
 
-	if ( write(fd_, &ev, sizeof(struct input_event)) != sizeof(struct input_event))
+	if ( write(writeFd_, &ev, sizeof(struct input_event)) != sizeof(struct input_event))
 		cerr << "write(): " << strerror(errno) << endl;
 }
 
 
 bool Powermate::waitForInput( Powermate::State& state ) {
-	assert( fd_ != -1 );
+	assert( readDeviceIsOpened() );
 
 	bool success = false;
 
 	if ( eventBufferNext_ != eventBufferLast_ ) {
 		// Return event from previous read.
 	} else {
-		int bytesRead = read( fd_, &eventBuffer_[0],
+		int bytesRead = read( readFd_, &eventBuffer_[0],
 		              sizeof(struct input_event) * eventBuffer_.size() );
 
 		if ( bytesRead > 0 ) {

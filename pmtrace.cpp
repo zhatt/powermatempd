@@ -80,7 +80,7 @@ int main( int argc, char* argv[] ) {
 	powermate.setTraceRaw( options.traceRaw );
 	powermate.setTraceEvents( options.traceEvents );
 
-	success = powermate.openDevice( options.device, O_RDONLY );
+	success = powermate.openReadDevice( options.device );
 
 	if ( ! success ) {
 		cerr << "Unable open Powermate" << endl;

@@ -33,14 +33,21 @@ class Powermate {
 	                        bool pulseAwake );
 
 	bool openDevice();
-	bool openDevice( const std::string& device, int flags = O_RDWR );
+	bool openDevice( const std::string& device );
+	bool openReadDevice( const std::string& device );
+	bool openWriteDevice( const std::string& device );
+
+	bool deviceIsOpened() { return readDeviceIsOpened() || writeDeviceIsOpened(); }
+	bool readDeviceIsOpened() { return readFd_ != -1; }
+	bool writeDeviceIsOpened() { return writeFd_ != -1; }
 
 	void setTraceRaw( bool value ) { traceRaw_ = value; }
 	void setTraceEvents( bool value ) { traceEvents_ = value; }
 
  private:
 	void processEvent( const input_event& event );
-	int fd_;
+	int readFd_;
+	int writeFd_;
 	bool pressed_;
 	int position_;
 	State state_;
