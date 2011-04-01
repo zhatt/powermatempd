@@ -16,7 +16,12 @@ struct Options {
 	bool traceRaw;
 	bool traceEvents;
 	bool daemon;
-	Options() : host( "localhost" ), traceRaw( false), traceEvents( false ) {}
+	Options() : 
+		host( "localhost" ),
+		traceRaw( false),
+		traceEvents( false ),
+		daemon( false )
+		{}
 };
 
 bool parseArgs( Options& options, int argc, char* argv[] ) {
