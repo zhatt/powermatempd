@@ -4,22 +4,110 @@
 #include "mpd.h"
 #include "powermatempd.h"
 
+#include <getopt.h>
+#include <cassert>
 #include <iostream>
 
 using namespace std;
 
-int main( ) {
+struct Options {
+	string host;
+	string device;
+	bool traceRaw;
+	bool traceEvents;
+	Options() : host( "localhost" ), traceRaw( false), traceEvents( false ) {}
+};
+
+bool parseArgs( Options& options, int argc, char* argv[] ) {
+	bool success = true;
+
+	while ( true ) {
+		enum {
+			HOST,
+			DEVICE,
+			TRACERAW,
+			TRACEEVENTS,
+		};
+
+		static const struct option longOptions[] = {
+			{ "host", required_argument,   0,  HOST },
+			{ "device", required_argument, 0,  DEVICE },
+			{ "traceraw", no_argument,     0,  TRACERAW },
+			{ "traceevents", no_argument,  0,  TRACEEVENTS },
+			{ 0,	    0,		       0,  0 }
+	       };
+
+	       int optionIndex = 0;
+	       int c = getopt_long( argc, argv, "", longOptions, &optionIndex);
+
+	       if (c == -1) break;
+
+	       switch (c) {
+	       case HOST:
+		       assert( optarg );
+		       options.host = optarg;
+		       break;
+
+	       case DEVICE:
+		       assert( optarg );
+		       options.device = optarg;
+		       break;
+
+	       case TRACERAW:
+		       options.traceRaw = true;
+		       break;
+
+	       case TRACEEVENTS:
+		       options.traceEvents = true;
+		       break;
+
+	       case ':':
+	       case '?':
+		       success = false;
+		       break;
+
+	       default:
+		       // Forgot to implement an option.
+		       assert( 0 );
+		       success = false;
+		       break;
+	       }
+
+	}
+
+	if (optind < argc) {
+		success = false;
+	}
+
+	return success;
+}
+
+int main( int argc, char* argv[] ) {
+	Options options;
+
+	bool success = parseArgs( options, argc, argv );
+	if ( ! success ) {
+		cerr << "Unable to parse command line" << endl;
+		return 1;
+	}
 
 	Powermate powermate;
-	bool success = powermate.openDevice();
+	if ( options.device.size() ) {
+		success = powermate.openDevice( options.device );
+	} else {
+		success = powermate.openDevice();
+	}
 
 	if ( ! success ) {
 		cerr << "Unable open Powermate" << endl;
 		return 1;
 	}
 
+	powermate.setTraceRaw( options.traceRaw );
+	powermate.setTraceEvents( options.traceEvents );
+
 	Mpd mpd;
-	success = mpd.connect( "music1." );
+	success = mpd.connect( options.host );
 
 	if ( ! success ) {
 		cerr << "Unable connect to mpd" << endl;
