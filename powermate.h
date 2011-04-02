@@ -45,6 +45,9 @@ class Powermate {
 	void setTraceEvents( bool value ) { traceEvents_ = value; }
 
  private:
+	Powermate& operator= ( const Powermate& other );
+	Powermate( const Powermate& other );
+
 	void processEvent( const input_event& event );
 	int readFd_;
 	int writeFd_;

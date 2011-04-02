@@ -23,6 +23,9 @@ class Mpd {
 	void volumeDown();
 
  private:
+	Mpd& operator=( const Mpd& other );
+	Mpd( const Mpd& other );
+
 	mpd_connection* connection_;
 };
 

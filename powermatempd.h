@@ -11,13 +11,16 @@ class PowermateMpd {
 	void run();
 
  private:
+	PowermateMpd& operator=( const PowermateMpd& other );
+	PowermateMpd( const PowermateMpd& other );
+
 	void processStateChange( const Powermate::State& pmState,
 	                         const Powermate::State& pmLastState );
 
 	static const int minRotation_ = 5;
 
-	Powermate powermate_;
-	Mpd mpd_;
+	Powermate& powermate_;
+	Mpd& mpd_;
 
 	bool playing_;
 	int position_;  // Smoothed by minRotation;
