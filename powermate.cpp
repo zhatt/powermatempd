@@ -94,13 +94,13 @@ bool Powermate::openDevice() {
 	return deviceIsOpened();
 }
 
-void Powermate::setLedBrightnessPercent( int percentOn ) {
-	int pulseSpeed = 255;
-	int pulseTable = 0;
-	int pulseAsleep = 1;
-	int pulseAwake = 0;
+void Powermate::setLedBrightnessPercent( unsigned percentOn ) {
+	unsigned pulseSpeed = 255;
+	unsigned pulseTable = 0;
+	bool pulseAsleep = 1;
+	bool pulseAwake = 0;
 
-	int brightness = percentOn * maxLedBrightness_ / 100;
+	unsigned brightness = percentOn * maxLedBrightness_ / 100;
 
 	setAllLedSettings( brightness, pulseSpeed, pulseTable, pulseAsleep,
 	                   pulseAwake);

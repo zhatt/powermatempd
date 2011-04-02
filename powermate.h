@@ -27,7 +27,7 @@ class Powermate {
 
 	bool waitForInput( State& state );
 
-	void setLedBrightnessPercent( int percentOn );
+	void setLedBrightnessPercent( unsigned percentOn );
 	void setAllLedSettings( unsigned staticBrightness, unsigned pulseSpeed,
 		                unsigned pulseTable, bool pulseAsleep,
 	                        bool pulseAwake );
