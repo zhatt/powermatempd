@@ -4,6 +4,8 @@
 #include "mpd.h"
 #include "powermatempd.h"
 
+#include <sys/types.h>
+#include <pwd.h>
 #include <getopt.h>
 #include <cassert>
 #include <iostream>
@@ -16,6 +18,8 @@ struct Options {
 	bool traceRaw;
 	bool traceEvents;
 	bool daemon;
+	string user;
+
 	Options() : 
 		host( "localhost" ),
 		traceRaw( false),
@@ -34,6 +38,7 @@ bool parseArgs( Options& options, int argc, char* argv[] ) {
 			TRACERAW,
 			TRACEEVENTS,
 			DAEMON,
+			USER,
 		};
 
 		static const struct option longOptions[] = {
@@ -42,6 +47,7 @@ bool parseArgs( Options& options, int argc, char* argv[] ) {
 			{ "traceraw", no_argument,     0,  TRACERAW },
 			{ "traceevents", no_argument,  0,  TRACEEVENTS },
 			{ "daemon", no_argument,       0,  DAEMON },
+			{ "user", required_argument,   0,  USER },
 			{ 0,	    0,		       0,  0 }
 	       };
 
@@ -71,6 +77,11 @@ bool parseArgs( Options& options, int argc, char* argv[] ) {
 
 	       case DAEMON:
 		       options.daemon = true;
+		       break;
+
+	       case USER:
+		       assert( optarg );
+		       options.user = optarg;
 		       break;
 
 	       case ':':
@@ -127,6 +138,20 @@ int main( int argc, char* argv[] ) {
 	}
 
 	PowermateMpd pmmpd( powermate, mpd );
+
+	if ( options.user.size() ) {
+	        struct passwd* pw = getpwnam( options.user.c_str() );
+		if ( ! pw ) {
+			cerr << "Invalid user requested" << endl;
+			return 1;
+		}
+
+		int ret = setuid( pw->pw_uid );
+		if ( ret == -1 ) {
+			cerr << "Unable to change to user requested" << endl;
+			return 1;
+		}
+	}
 
 	if ( options.daemon ) {
 		int ret = daemon( 0, 0 );
