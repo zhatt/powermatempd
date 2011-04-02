@@ -28,7 +28,7 @@ struct Options {
 		{}
 };
 
-bool parseArgs( Options& options, int argc, char* argv[] ) {
+static bool parseArgs( Options& options, int argc, char* argv[] ) {
 	bool success = true;
 
 	while ( true ) {

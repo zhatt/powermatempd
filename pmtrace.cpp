@@ -17,7 +17,7 @@ struct Options {
 	Options() : traceRaw( false ), traceEvents( false ) {}
 };
 
-bool parseArgs( Options& options, int argc, char* argv[] ) {
+static bool parseArgs( Options& options, int argc, char* argv[] ) {
 	bool success = true;
 
 	while ( true ) {
