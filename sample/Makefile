@@ -3,8 +3,8 @@ CFLAGS=-Wall -Wextra -g --std=gnu99
 all: fakepm
 
 LIBOBJS = 
-OBJS = $(LIBOBJS) fake.o
-HEADERS = 
+OBJS = $(LIBOBJS) fakepm.o
+HEADERS = inputtrace.h
 
 $(OBJS) : $(HEADERS)
 
