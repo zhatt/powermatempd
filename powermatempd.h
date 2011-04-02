@@ -17,6 +17,9 @@ class PowermateMpd {
 	void processStateChange( const Powermate::State& pmState,
 	                         const Powermate::State& pmLastState );
 
+	void ledOnOff( bool onOff );
+	void ledPercent( unsigned percentOn );
+
 	static const int minRotation_ = 5;
 
 	Powermate& powermate_;

@@ -7,7 +7,10 @@
 
 PowermateMpd::PowermateMpd( Powermate& powermate, Mpd& mpd )
 	: powermate_( powermate ),
-	  mpd_( mpd ) {}
+	  mpd_( mpd ) {
+
+	ledOnOff( mpd.getIsOn() );
+}
 
 void PowermateMpd::processStateChange( const Powermate::State& pmState,
                                        const Powermate::State& pmLastState ) {
@@ -33,12 +36,17 @@ void PowermateMpd::processStateChange( const Powermate::State& pmState,
 		 * Released
 		 */
 		if ( ! pressedAndRotated_ ) {
-			mpd_.toggleOnOff();
+			bool isOn;
+			mpd_.toggleOnOff( isOn );
+			ledOnOff( isOn );
 
 		} else {
 			/*
-			 * We changed volume.  Nothing more to do.
+			 * Release after volume change.  Just reset LED state.
 			 */
+
+			bool isOn = mpd_.getIsOn();
+			ledOnOff( isOn );
 		}
 
 	} else if ( rotated ) {
@@ -48,11 +56,15 @@ void PowermateMpd::processStateChange( const Powermate::State& pmState,
 			 */
 			pressedAndRotated_ = true;
 
+			unsigned volumePercent;
+
 			if ( pmState.position_ > position_ ) {
-				mpd_.volumeUp();
+				mpd_.volumeUp( volumePercent );
 			} else {
-				mpd_.volumeDown();
+				mpd_.volumeDown( volumePercent );
 			}
+
+			ledPercent( volumePercent );
 
 		} else {
 			/*
@@ -83,4 +95,12 @@ void PowermateMpd::run() {
 		result = powermate_.waitForInput( state );
 		processStateChange( state, lastState );
 	}
+}
+
+void PowermateMpd::ledOnOff( bool onOff ) {
+	ledPercent( onOff ? 100 : 0 );
+}
+
+void PowermateMpd::ledPercent( unsigned percent ) {
+	powermate_.setLedBrightnessPercent( percent );
 }
