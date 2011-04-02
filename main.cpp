@@ -15,6 +15,7 @@ struct Options {
 	string device;
 	bool traceRaw;
 	bool traceEvents;
+	bool daemon;
 	Options() : host( "localhost" ), traceRaw( false), traceEvents( false ) {}
 };
 
@@ -27,6 +28,7 @@ bool parseArgs( Options& options, int argc, char* argv[] ) {
 			DEVICE,
 			TRACERAW,
 			TRACEEVENTS,
+			DAEMON,
 		};
 
 		static const struct option longOptions[] = {
@@ -34,6 +36,7 @@ bool parseArgs( Options& options, int argc, char* argv[] ) {
 			{ "device", required_argument, 0,  DEVICE },
 			{ "traceraw", no_argument,     0,  TRACERAW },
 			{ "traceevents", no_argument,  0,  TRACEEVENTS },
+			{ "daemon", no_argument,       0,  DAEMON },
 			{ 0,	    0,		       0,  0 }
 	       };
 
@@ -59,6 +62,10 @@ bool parseArgs( Options& options, int argc, char* argv[] ) {
 
 	       case TRACEEVENTS:
 		       options.traceEvents = true;
+		       break;
+
+	       case DAEMON:
+		       options.daemon = true;
 		       break;
 
 	       case ':':
@@ -115,6 +122,14 @@ int main( int argc, char* argv[] ) {
 	}
 
 	PowermateMpd pmmpd( powermate, mpd );
+
+	if ( options.daemon ) {
+		int ret = daemon( 0, 0 );
+		if ( ret == -1 ) {
+			cerr << "Unable connect to daemonize" << endl;
+			return 1;
+		}
+	}
 
 	pmmpd.run();
 
