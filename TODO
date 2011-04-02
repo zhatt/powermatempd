@@ -20,4 +20,5 @@ Do events need queued and sent asynchronously to mpd?
 
 Handle position rollover.
 
+Move cout to logs.
 
