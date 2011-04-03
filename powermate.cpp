@@ -105,6 +105,9 @@ void Powermate::setLedBrightnessPercent( unsigned percentOn ) {
 	setAllLedSettings( brightness, pulseSpeed, pulseTable, pulseAsleep,
 	                   pulseAwake);
 
+	if ( traceEvents_ ) {
+		cout << "Set LED: " << percentOn << "%\n";
+	}
 }
 
 void Powermate::setAllLedSettings( unsigned staticBrightness,
@@ -127,8 +130,9 @@ void Powermate::setAllLedSettings( unsigned staticBrightness,
 	ev.value = staticBrightness | (pulseSpeed << 8) | (pulseTable << 17) |
 		(pulseAsleep << 19) | (pulseAwake << 20);
 
-	if ( write(writeFd_, &ev, sizeof(struct input_event)) != sizeof(struct input_event))
+	if ( write(writeFd_, &ev, sizeof(struct input_event)) != sizeof(struct input_event)) {
 		cerr << "write(): " << strerror(errno) << endl;
+	}
 }
 
 

@@ -72,16 +72,19 @@ void Mpd::toggleOnOff() {
 		case MPD_STATE_STOP:
 			cout << "Send Play" << endl;
 			mpd_run_play( connection_ );
+			isOn_ = true;
 			break;
 
 		case MPD_STATE_PAUSE:
 			cout << "Send pause false" << endl;
 			mpd_run_pause( connection_, false );
+			isOn_ = true;
 			break;
 
 		case MPD_STATE_PLAY:
 			cout << "Send pause true" << endl;
 			mpd_run_pause( connection_, true );
+			isOn_ = false;
 			break;
 		}
 	} else {
