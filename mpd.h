@@ -24,6 +24,8 @@ class Mpd {
 
  private:
 	mpd_connection* connection_;
+
+	void printConnectionError( const std::string& prefix );
 };
 
 #endif // MPD_H
