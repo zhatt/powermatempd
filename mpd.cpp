@@ -18,6 +18,15 @@ Mpd::~Mpd() {
 	if ( connection_ ) mpd_connection_free ( connection_ );
 }
 
+void Mpd::printConnectionError( const string& prefix ) {
+	mpd_error err = mpd_connection_get_error( connection_ );
+        const char* errMessage = mpd_connection_get_error_message( connection_ );
+	cerr << prefix
+	     << err << ":"
+	     << errMessage
+	     << endl;
+}
+
 bool Mpd::connect( const string& host ) {
 	assert( connection_ == 0 );
 
@@ -88,8 +97,7 @@ void Mpd::toggleOnOff() {
 			break;
 		}
 	} else {
-		mpd_error err = mpd_connection_get_error( connection_ );
-		cerr << "Can't get status: " << err << endl;
+		printConnectionError("toggleOnOff: ");
 	}
 }
 
@@ -119,8 +127,7 @@ void Mpd::deltaVolume( int deltaPercent ) {
 		volumePercent_ = volume;
 
 	} else {
-		mpd_error err = mpd_connection_get_error( connection_ );
-		cerr << "Can't get status: " << err << endl;
+		printConnectionError( "deltaVolume: " );
 	}
 }
 
