@@ -46,12 +46,12 @@ bool Mpd::connect( const string& host ) {
 
 void Mpd::off() {
 	cout << "Turn OFF\n";
-	assert( 0 );
+	assert( !"Mpd::off() is unimplemented" );
 }
 
 void Mpd::on() {
 	cout << "Turn ON\n";
-	assert( 0 ) ;
+	assert( !"Mpd::on() is unimplemented" ) ;
 }
 
 void Mpd::toggleOnOff( bool& isOn ) {
@@ -60,6 +60,8 @@ void Mpd::toggleOnOff( bool& isOn ) {
 }
 
 void Mpd::toggleOnOff() {
+	assert( connection_ );
+
 	cout << "Toggle ON/OFF\n";
 
 	mpd_status* status = mpd_run_status( connection_ );
@@ -94,16 +96,19 @@ void Mpd::toggleOnOff() {
 }
 
 void Mpd::previousTrack() {
+	assert( connection_ );
 	cout << "PREV track\n";
 	mpd_run_previous( connection_ );
 }
 
 void Mpd::nextTrack() {
+	assert( connection_ );
 	cout << "NEXT track\n";
 	mpd_run_next( connection_ );
 }
 
 void Mpd::deltaVolume( int deltaPercent ) {
+	assert( connection_ );
 	mpd_status* status = mpd_run_status( connection_ );
 	if ( status ) {
 		int volume = mpd_status_get_volume( status );
