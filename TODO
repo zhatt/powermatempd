@@ -1,24 +1,20 @@
 TODO
  
-Click - toggle on and off
-Press and turn - volume
-Turn - change song
-
-Turn on led when on turn off led when off.
-
-There are two click cases.
-	Down->Up toggle state.
-	Down->Motion toggle volume.
-
-When changing volume, set LED brightness to percent on.
-
-Need a threshold of 5 units before deciding that motion is occuring.
-	How do I reset this when button is not pressed?  Seperate abs position for up and down.
-
 Do events need queued and sent asynchronously to mpd?
 	Initially, we won't do that.
 
 Handle position rollover.
 
 Move cout to logs.
+
+DONE
+
+Click - toggle on and off
+Press and turn - volume
+Turn - change song
+
+Turn on led when on turn off led when off.
+When changing volume, set LED brightness to percent on.
+
+Threshold of 5 units before deciding that motion is occuring.
 
