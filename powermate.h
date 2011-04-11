@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
 
 #include <linux/input.h>
 #include <fcntl.h>
@@ -44,11 +45,14 @@ class Powermate {
 	void setTraceRaw( bool value ) { traceRaw_ = value; }
 	void setTraceEvents( bool value ) { traceEvents_ = value; }
 
+	std::ostream& getTraceEventStream() { return *traceEventStream_; }
+
  private:
 	Powermate& operator= ( const Powermate& other );
 	Powermate( const Powermate& other );
 
 	void processEvent( const input_event& event );
+
 	int readFd_;
 	int writeFd_;
 	bool pressed_;
@@ -56,6 +60,7 @@ class Powermate {
 	State state_;
 	bool traceRaw_;
 	bool traceEvents_;
+	std::ostream* traceEventStream_;
 
 	std::vector<input_event> eventBuffer_;
 	std::vector<input_event>::iterator eventBufferNext_;

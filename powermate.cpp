@@ -16,7 +16,8 @@ using namespace std;
 
 Powermate::Powermate() :
 	readFd_( -1 ), writeFd_( -1 ), pressed_( false ), position_( 0 ),
-	traceRaw_( false ), traceEvents_( false )
+	traceRaw_( false ), traceEvents_( false ),
+	traceEventStream_( &cout )
 {
 	eventBuffer_.resize( 32 );
 	eventBufferNext_ = eventBufferLast_ = eventBuffer_.end();
@@ -106,7 +107,7 @@ void Powermate::setLedBrightnessPercent( unsigned percentOn ) {
 	                   pulseAwake);
 
 	if ( traceEvents_ ) {
-		cout << "Set LED: " << percentOn << "%\n";
+		getTraceEventStream() <<  "Set LED:" << percentOn << "%\n";
 	}
 }
 
@@ -191,9 +192,10 @@ void Powermate::processEvent( const input_event& event ) {
 		else {
 			state_.position_ += event.value;
 			if ( traceEvents_ ) {
-				cout << "Button was rotated " << event.value
-				     << " units; Offset from start is now " << state_.position_
-				     << " units" << endl;
+				getTraceEventStream()
+					<< "Button was rotated " << event.value
+					<< " units; Offset from start is now "
+					<< state_.position_ << " units\n";
 			}
 		}
 		break;
