@@ -123,15 +123,25 @@ void Powermate::setAllLedSettings( unsigned staticBrightness,
 	if ( pulseSpeed > maxPulseSpeed ) pulseSpeed = maxPulseSpeed;
 	if ( pulseTable > maxPulseTable ) pulseTable = maxPulseTable;
 
-	struct input_event ev;
-	memset(&ev, 0, sizeof(struct input_event));
+	struct input_event event;
+	memset(&event, 0, sizeof(struct input_event));
 
-	ev.type = EV_MSC;
-	ev.code = MSC_PULSELED;
-	ev.value = staticBrightness | (pulseSpeed << 8) | (pulseTable << 17) |
+	event.type = EV_MSC;
+	event.code = MSC_PULSELED;
+	event.value = staticBrightness | (pulseSpeed << 8) | (pulseTable << 17) |
 		(pulseAsleep << 19) | (pulseAwake << 20);
 
-	if ( write(writeFd_, &ev, sizeof(struct input_event)) != sizeof(struct input_event)) {
+	if ( traceRaw_ ) {
+		ios_base::fmtflags ff = cout.flags();
+		cout << hex << setfill('0')
+		     << "send_event:  type=0x" << setw(4) << event.type 
+		     << ", code=0x" << setw(4) << event.code
+		     << ", value=" << dec << event.value << "\n";
+		cout.flags( ff );
+	}
+
+	int result = write( writeFd_, &event, sizeof(struct input_event) );
+	if ( result  != sizeof(struct input_event) ) {
 		cerr << "write(): " << strerror(errno) << endl;
 	}
 }
