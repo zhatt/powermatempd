@@ -117,7 +117,7 @@ void PowermateMpd::run() {
 
 		mpd_.idleBegin();
 
-		poll( pollFds, sizeof(pollFds) / sizeof(pollFds[0]), 0 );
+		poll( pollFds, sizeof(pollFds) / sizeof(pollFds[0]), -1 );
 
 		/*
 		 * We need to end the idle on the MPD connection so we can send
