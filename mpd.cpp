@@ -35,9 +35,8 @@ bool Mpd::connect( const string& host ) {
 	mpd_status* status = mpd_run_status( connection_ );
 	if ( status ) {
 		mpd_state state = mpd_status_get_state( status );
-		isOn_ = state == MPD_STATE_PLAY;
 
-		cout << "STATE:" << state << endl;
+		isOn_ = state == MPD_STATE_PLAY;
 
 		mpd_status_free( status );
 	}
@@ -147,4 +146,21 @@ void Mpd::volumeDown( unsigned& percentOn ) {
 void Mpd::volumeDown() {
 	cout << "Volume DOWN " << volumePercent_ << "\n";
 	deltaVolume( -5 );
+}
+
+void Mpd::idleBegin() {
+	assert( connection_ );
+	mpd_send_idle_mask( connection_, MPD_IDLE_PLAYER );
+}
+
+bool Mpd::idleEnd() {
+	assert( connection_ );
+	mpd_idle changed = mpd_run_noidle( connection_ );
+
+	return changed != 0;
+}
+
+int Mpd::getFd() {
+	assert( connection_ );
+	return mpd_connection_get_fd( connection_ );
 }

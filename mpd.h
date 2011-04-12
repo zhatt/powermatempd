@@ -25,6 +25,11 @@ class Mpd {
 	void volumeDown();
 	void volumeDown( unsigned& percentOn );
 
+	void idleBegin();
+	bool idleEnd();  // True if player state changed.
+
+	int getFd();
+
 	bool getIsOn() const { return isOn_; }
 
  private:

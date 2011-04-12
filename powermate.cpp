@@ -142,7 +142,7 @@ bool Powermate::waitForInput( Powermate::State& state ) {
 
 	bool success = false;
 
-	if ( eventBufferNext_ != eventBufferLast_ ) {
+	if ( this->hasBufferedEvents() ) {
 		// Return event from previous read.
 	} else {
 		int bytesRead = read( readFd_, &eventBuffer_[0],

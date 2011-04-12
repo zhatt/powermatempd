@@ -45,6 +45,9 @@ class Powermate {
 	void setTraceRaw( bool value ) { traceRaw_ = value; }
 	void setTraceEvents( bool value ) { traceEvents_ = value; }
 
+	bool hasBufferedEvents() const { return eventBufferNext_ != eventBufferLast_; }
+	int getReadFd() const { return readFd_; }
+
 	std::ostream& getTraceEventStream() { return *traceEventStream_; }
 
  private:

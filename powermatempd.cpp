@@ -3,12 +3,19 @@
 #include "powermate.h"
 #include "mpd.h"
 
+#include <iostream>
 #include <cstdlib>
+#include <poll.h>
+
+using namespace std;
 
 PowermateMpd::PowermateMpd( Powermate& powermate, Mpd& mpd )
 	: powermate_( powermate ),
-	  mpd_( mpd ) {
-
+	  mpd_( mpd ),
+	  playing_( false ),
+	  position_( 0 ),
+	  pressedAndRotated_( false ) 
+{
 	ledOnOff( mpd.getIsOn() );
 }
 
@@ -89,11 +96,54 @@ void PowermateMpd::run() {
 
 	Powermate::State state;
 
+	const unsigned mpdPollFdIndex = 0;
+	const unsigned pmPollFdIndex = 1;
+	struct pollfd pollFds[2];
+	pollFds[mpdPollFdIndex].fd = mpd_.getFd();
+	pollFds[mpdPollFdIndex].events = POLLIN;
+	pollFds[mpdPollFdIndex].revents = 0;
+	pollFds[pmPollFdIndex].fd = powermate_.getReadFd();
+	pollFds[pmPollFdIndex].events = POLLIN;
+	pollFds[pmPollFdIndex].revents = 0;
+
 	while ( result ) {
 		Powermate::State lastState = state;
 
-		result = powermate_.waitForInput( state );
-		processStateChange( state, lastState );
+		if ( powermate_.hasBufferedEvents() ) {
+			result = powermate_.waitForInput( state );
+			processStateChange( state, lastState );
+			continue;
+		}
+
+		mpd_.idleBegin();
+
+		poll( pollFds, sizeof(pollFds) / sizeof(pollFds[0]), 0 );
+
+		/*
+		 * We need to end the idle on the MPD connection so we can send
+		 * it a command below.  Unfortunately due to the way that the
+		 * MPD protocol implements idle there is always a chance that
+		 * state change events will be lost between idle waits.
+		 */
+		if ( mpd_.idleEnd() ) {
+			cout << "State changed" << endl;
+			ledOnOff( mpd_.getIsOn() );
+		}
+
+		if ( pollFds[pmPollFdIndex].revents & POLLIN ) {
+			/*
+			 * Powermate has event data to read.
+			 */
+			result = powermate_.waitForInput( state );
+			processStateChange( state, lastState );
+
+		} else if ( pollFds[pmPollFdIndex].revents ) {
+			/*
+			 * Quit if poll reports an error.  POLLERR, POLLHUP, or
+			 * POLLNVAL could be set in revents.
+			 */
+			result = false;
+		}
 	}
 }
 
