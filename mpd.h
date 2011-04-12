@@ -36,9 +36,12 @@ class Mpd {
 	Mpd& operator=( const Mpd& other );
 	Mpd( const Mpd& other );
 
+	void printConnectionError( const std::string& prefix );
+
 	mpd_connection* connection_;
 	bool isOn_;
 	unsigned volumePercent_;
+
 };
 
 #endif // MPD_H
