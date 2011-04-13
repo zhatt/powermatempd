@@ -44,9 +44,7 @@ bool Mpd::connect( const string& host ) {
 	mpd_status* status = mpd_run_status( connection_ );
 	if ( status ) {
 		mpd_state state = mpd_status_get_state( status );
-
 		isOn_ = state == MPD_STATE_PLAY;
-
 		mpd_status_free( status );
 	}
 	return success;
@@ -164,7 +162,18 @@ bool Mpd::idleEnd() {
 	assert( connection_ );
 	mpd_idle changed = mpd_run_noidle( connection_ );
 
-	return changed != 0;
+	bool oldIsOn = isOn_;
+
+	if ( changed ) {
+		mpd_status* status = mpd_run_status( connection_ );
+		if ( status ) {
+			mpd_state state = mpd_status_get_state( status );
+			isOn_ = state == MPD_STATE_PLAY;
+			mpd_status_free( status );
+		}
+	}
+
+	return oldIsOn != isOn_;
 }
 
 int Mpd::getFd() {

@@ -125,9 +125,10 @@ void PowermateMpd::run() {
 		 * MPD protocol implements idle there is always a chance that
 		 * state change events will be lost between idle waits.
 		 */
-		if ( mpd_.idleEnd() ) {
-			cout << "State changed" << endl;
-			ledOnOff( mpd_.getIsOn() );
+		if ( mpd_.idleEnd()   ) {
+			bool isOn = mpd_.getIsOn();
+			cout << "State changed" << " " << isOn << endl;
+			ledOnOff( isOn );
 		}
 
 		if ( pollFds[pmPollFdIndex].revents & POLLIN ) {
