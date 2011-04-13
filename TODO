@@ -1,11 +1,13 @@
 TODO
  
 Do events need queued and sent asynchronously to mpd?
-	Initially, we won't do that.
+	No.
+	Currently the only asynchronously API we use is for getting playing state.
 
 Handle position rollover.
 
 Move cout to logs.
+
 
 DONE
 
