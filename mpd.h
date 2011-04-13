@@ -26,7 +26,7 @@ class Mpd {
 	void volumeDown( unsigned& percentOn );
 
 	void idleBegin();
-	bool idleEnd();  // True if player state changed.
+	void idleEnd( bool& stateChanged );
 
 	int getFd();
 
@@ -37,6 +37,7 @@ class Mpd {
 	Mpd( const Mpd& other );
 
 	void printConnectionError( const std::string& prefix );
+	void updateIsOn();
 
 	mpd_connection* connection_;
 	bool isOn_;

@@ -39,14 +39,10 @@ bool Mpd::connect( const string& host ) {
 		if ( err != MPD_ERROR_SUCCESS ) {
 			success = false;
 		}
+
+		updateIsOn();
 	}
 
-	mpd_status* status = mpd_run_status( connection_ );
-	if ( status ) {
-		mpd_state state = mpd_status_get_state( status );
-		isOn_ = state == MPD_STATE_PLAY;
-		mpd_status_free( status );
-	}
 	return success;
 }
 
@@ -158,25 +154,31 @@ void Mpd::idleBegin() {
 	mpd_send_idle_mask( connection_, MPD_IDLE_PLAYER );
 }
 
-bool Mpd::idleEnd() {
+void Mpd::idleEnd( bool& stateChanged ) {
 	assert( connection_ );
 	mpd_idle changed = mpd_run_noidle( connection_ );
 
 	bool oldIsOn = isOn_;
 
 	if ( changed ) {
-		mpd_status* status = mpd_run_status( connection_ );
-		if ( status ) {
-			mpd_state state = mpd_status_get_state( status );
-			isOn_ = state == MPD_STATE_PLAY;
-			mpd_status_free( status );
-		}
+		updateIsOn();
 	}
 
-	return oldIsOn != isOn_;
+	stateChanged = oldIsOn != isOn_;
 }
 
 int Mpd::getFd() {
 	assert( connection_ );
 	return mpd_connection_get_fd( connection_ );
+}
+
+void Mpd::updateIsOn() {
+	assert( connection_ );
+
+	mpd_status* status = mpd_run_status( connection_ );
+	if ( status ) {
+		mpd_state state = mpd_status_get_state( status );
+		isOn_ = state == MPD_STATE_PLAY;
+		mpd_status_free( status );
+	}
 }
