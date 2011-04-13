@@ -1,3 +1,8 @@
+/*
+ * Sample application for debugging Powermate class.
+ *
+ * It traces events received from the powermate.
+ */
 
 #include "powermate.h"
 
