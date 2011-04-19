@@ -14,7 +14,7 @@ PowermateMpd::PowermateMpd( Powermate& powermate, Mpd& mpd )
 	  mpd_( mpd ),
 	  playing_( false ),
 	  position_( 0 ),
-	  pressedAndRotated_( false ) 
+	  pressedAndRotated_( false )
 {
 	ledOnOff( mpd.getIsOn() );
 }
