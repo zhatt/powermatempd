@@ -14,8 +14,7 @@ class PowermateMpd {
 	PowermateMpd& operator=( const PowermateMpd& other );
 	PowermateMpd( const PowermateMpd& other );
 
-	void processStateChange( const Powermate::State& pmState,
-	                         const Powermate::State& pmLastState );
+	void processStateChange( const Powermate::State& pmState );
 
 	void ledOnOff( bool onOff );
 	void ledPercent( unsigned percentOn );
@@ -27,6 +26,7 @@ class PowermateMpd {
 
 	bool playing_;
 	int position_;  // Smoothed by minRotation;
+	bool pressed_;
 	bool pressedAndRotated_;
 };
 

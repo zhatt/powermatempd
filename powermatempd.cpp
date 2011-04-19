@@ -14,13 +14,14 @@ PowermateMpd::PowermateMpd( Powermate& powermate, Mpd& mpd )
 	  mpd_( mpd ),
 	  playing_( false ),
 	  position_( 0 ),
+	  pressed_( false ),
 	  pressedAndRotated_( false )
 {
 	ledOnOff( mpd.getIsOn() );
 }
 
-void PowermateMpd::processStateChange( const Powermate::State& pmState,
-                                       const Powermate::State& pmLastState ) {
+void PowermateMpd::processStateChange( const Powermate::State& newPmState ) {
+
 	/*
 	 * press - do nothing
 	 * release - toggle play, set LED playing state
@@ -29,16 +30,17 @@ void PowermateMpd::processStateChange( const Powermate::State& pmState,
 	 * release after rotate - set LED to playing state
 	 */
 
-	bool rotated = abs( pmState.position_ - position_ ) > minRotation_;
+	bool rotated = abs( newPmState.position_ - position_ ) > minRotation_;
 
-	if ( pmState.pressed_ && ! pmLastState.pressed_ ) {
+	if ( newPmState.pressed_ && ! pressed_ ) {
 		/*
 		 * Newly pressed.
 		 */
 
+		pressed_ = true;
 		pressedAndRotated_ = false;
 
-	} else if ( ! pmState.pressed_ && pmLastState.pressed_ ) {
+	} else if ( ! newPmState.pressed_ && pressed_ ) {
 		/*
 		 * Released
 		 */
@@ -56,8 +58,11 @@ void PowermateMpd::processStateChange( const Powermate::State& pmState,
 			ledOnOff( isOn );
 		}
 
+		pressed_ = false;
+		pressedAndRotated_ = false;
+
 	} else if ( rotated ) {
-		if ( pmState.pressed_ ) {
+		if ( newPmState.pressed_ ) {
 			/*
 			 * Press and rotate.
 			 */
@@ -65,7 +70,7 @@ void PowermateMpd::processStateChange( const Powermate::State& pmState,
 
 			unsigned volumePercent;
 
-			if ( pmState.position_ > position_ ) {
+			if ( newPmState.position_ > position_ ) {
 				mpd_.volumeUp( volumePercent );
 			} else {
 				mpd_.volumeDown( volumePercent );
@@ -77,14 +82,14 @@ void PowermateMpd::processStateChange( const Powermate::State& pmState,
 			/*
 			 * Rotate
 			 */
-			if ( pmState.position_ > position_ ) {
+			if ( newPmState.position_ > position_ ) {
 				mpd_.nextTrack();
 			} else {
 				mpd_.previousTrack();
 			}
 		}
 
-		position_ = pmState.position_;
+		position_ = newPmState.position_;
 	}
 
 }
@@ -107,11 +112,10 @@ void PowermateMpd::run() {
 	pollFds[pmPollFdIndex].revents = 0;
 
 	while ( result ) {
-		Powermate::State lastState = state;
 
 		if ( powermate_.hasBufferedEvents() ) {
 			result = powermate_.waitForInput( state );
-			processStateChange( state, lastState );
+			processStateChange( state );
 			continue;
 		}
 
@@ -138,7 +142,7 @@ void PowermateMpd::run() {
 			 * Powermate has event data to read.
 			 */
 			result = powermate_.waitForInput( state );
-			processStateChange( state, lastState );
+			processStateChange( state );
 
 		} else if ( pollFds[pmPollFdIndex].revents ) {
 			/*
