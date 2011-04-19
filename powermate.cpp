@@ -15,7 +15,7 @@
 using namespace std;
 
 Powermate::Powermate() :
-	readFd_( -1 ), writeFd_( -1 ), pressed_( false ), position_( 0 ),
+	readFd_( -1 ), writeFd_( -1 ),
 	traceRaw_( false ), traceEvents_( false ),
 	traceEventStream_( &cout )
 {

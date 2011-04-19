@@ -15,7 +15,10 @@ class Powermate {
 		bool pressed_;
 		int position_;
 
-		State() : pressed_( false ), position_( 0 ) {};
+		State() :
+			pressed_( false ),
+			position_( 0 )
+		{};
 	};
 
 	static const unsigned maxInputEventDevices_ = 16;
@@ -44,6 +47,7 @@ class Powermate {
 
 	void setTraceRaw( bool value ) { traceRaw_ = value; }
 	void setTraceEvents( bool value ) { traceEvents_ = value; }
+	void setPosition( int position ) { state_.position_ = position; } 
 
 	bool hasBufferedEvents() const { return eventBufferNext_ != eventBufferLast_; }
 	int getReadFd() const { return readFd_; }
@@ -58,8 +62,6 @@ class Powermate {
 
 	int readFd_;
 	int writeFd_;
-	bool pressed_;
-	int position_;
 	State state_;
 	bool traceRaw_;
 	bool traceEvents_;
