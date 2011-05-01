@@ -3,6 +3,7 @@
 #include "powermate.h"
 #include "mpd.h"
 #include "powermatempd.h"
+#include "hgversion.h"
 
 #include <sys/types.h>
 #include <pwd.h>
@@ -19,12 +20,14 @@ struct Options {
 	bool traceEvents;
 	bool daemon;
 	string user;
+	bool printVersion;
 
 	Options() : 
 		host( "localhost" ),
 		traceRaw( false),
 		traceEvents( false ),
-		daemon( false )
+		daemon( false ),
+		printVersion( false )
 		{}
 };
 
@@ -39,6 +42,7 @@ static bool parseArgs( Options& options, int argc, char* argv[] ) {
 			TRACEEVENTS,
 			DAEMON,
 			USER,
+			VERSION,
 		};
 
 		static const struct option longOptions[] = {
@@ -48,6 +52,7 @@ static bool parseArgs( Options& options, int argc, char* argv[] ) {
 			{ "traceevents", no_argument,  0,  TRACEEVENTS },
 			{ "daemon", no_argument,       0,  DAEMON },
 			{ "user", required_argument,   0,  USER },
+			{ "version", no_argument,      0,  VERSION },
 			{ 0,	    0,		       0,  0 }
 	       };
 
@@ -77,6 +82,10 @@ static bool parseArgs( Options& options, int argc, char* argv[] ) {
 
 	       case DAEMON:
 		       options.daemon = true;
+		       break;
+
+	       case VERSION:
+		       options.printVersion = true;
 		       break;
 
 	       case USER:
@@ -112,6 +121,11 @@ int main( int argc, char* argv[] ) {
 	if ( ! success ) {
 		cerr << "Unable to parse command line" << endl;
 		return 1;
+	}
+
+	if ( options.printVersion ) {
+		cout << HgVersion::hash << endl;
+		return 0;
 	}
 
 	Powermate powermate;

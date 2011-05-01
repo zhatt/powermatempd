@@ -8,7 +8,7 @@ all: powermatempd pmtrace subdirs
 
 LIBOBJS = powermate.o mpd.o powermatempd.o
 OBJS = $(LIBOBJS) main.o pmtrace.o
-HEADERS = powermate.h mpd.h powermatempd.h
+HEADERS = powermate.h mpd.h powermatempd.h hgversion.h
 
 $(OBJS) : $(HEADERS)
 
@@ -33,3 +33,17 @@ clean :
 cleansubs :
 	$(MAKE) -C $(SUBDIRS) clean
 
+#
+# Generate hgversion.h
+# Verify that it has changed before moving the new copy in place.
+#
+.PHONY : hgversion
+hgversion :
+hgversion.h : hgversion
+	@ echo "namespace HgVersion { ;" > hgversion.h.tmp
+	@ echo "static const char* const hash = \"$$(hg id --id)\";" >> hgversion.h.tmp
+	@ echo "static const char* const revision = \"$$(hg id --num)\";" >> hgversion.h.tmp
+	@ echo "}" >> hgversion.h.tmp
+	@ cmp -s hgversion.h.tmp hgversion.h || mv -f hgversion.h.tmp hgversion.h
+	@ [[ -e hgversion.h.tmp ]] || echo "Generated hgversion.h"
+	@ rm -f hgversion.h.tmp
