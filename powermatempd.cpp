@@ -91,7 +91,6 @@ void PowermateMpd::processStateChange( const Powermate::State& newPmState ) {
 
 		position_ = newPmState.position_;
 	}
-
 }
 
 
