@@ -4,6 +4,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <linux/input.h>
+#include <unistd.h>
+
 #include <cassert>
 #include <cstring>
 #include <cerrno>

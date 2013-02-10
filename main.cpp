@@ -6,6 +6,7 @@
 #include "hgversion.h"
 
 #include <sys/types.h>
+#include <unistd.h>
 #include <pwd.h>
 #include <getopt.h>
 #include <cassert>
