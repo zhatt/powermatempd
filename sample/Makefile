@@ -1,4 +1,4 @@
-CFLAGS=-Wall -Wextra -g --std=gnu99
+CXXFLAGS=-Wall -Wextra -g -Werror
 
 all: fakepm
 
@@ -9,7 +9,7 @@ HEADERS = inputtrace.h
 $(OBJS) : $(HEADERS)
 
 fakepm : $(LIBOBJS) fakepm.o
-	$(CC) $^ -o $@ 
+	$(CXX) $^ -o $@ 
 
 clean:
 	rm -f *.o *~ fakepm
