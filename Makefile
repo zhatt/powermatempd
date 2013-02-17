@@ -1,4 +1,5 @@
-CXXFLAGS = -Wall -Wextra -g -Os
+#CXXFLAGS = -Wall -Wextra -g -Os
+CXXFLAGS = -Wall -Wextra -g 
 #-march=i486 -mtune=i686 -Os
 LDFLAGS=-Wl,-O1
 
@@ -6,9 +7,9 @@ SUBDIRS = sample
 
 all: powermatempd pmtrace subdirs
 
-LIBOBJS = powermate.o mpd.o powermatempd.o
+LIBOBJS = powermate.o mpd.o powermatempd.o log.o
 OBJS = $(LIBOBJS) main.o pmtrace.o
-HEADERS = powermate.h mpd.h powermatempd.h hgversion.h
+HEADERS = powermate.h mpd.h powermatempd.h hgversion.h log.h
 
 $(OBJS) : $(HEADERS)
 

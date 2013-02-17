@@ -8,4 +8,5 @@ hgversion.h
 pmtrace
 powermatempd
 sample/fakepm
+sample/testlog
 
