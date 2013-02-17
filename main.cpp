@@ -4,6 +4,7 @@
 #include "mpd.h"
 #include "powermatempd.h"
 #include "hgversion.h"
+#include "log.h"
 
 #include <sys/types.h>
 #include <unistd.h>
@@ -141,6 +142,7 @@ int main( int argc, char* argv[] ) {
 		return 1;
 	}
 
+        Log::reportingLevel() = logDEBUG;
 	powermate.setTraceRaw( options.traceRaw );
 	powermate.setTraceEvents( options.traceEvents );
 

@@ -1,5 +1,7 @@
 
 #include "mpd.h"
+#include "log.h"
+
 #include <iostream>
 #include <cassert>
 #include <string>
@@ -21,7 +23,7 @@ Mpd::~Mpd() {
 void Mpd::printConnectionError( const string& prefix ) {
 	mpd_error err = mpd_connection_get_error( connection_ );
         const char* errMessage = mpd_connection_get_error_message( connection_ );
-	cerr << prefix
+	LOG( logERROR ) << prefix
 	     << err << ":"
 	     << errMessage
 	     << endl;
@@ -47,12 +49,12 @@ bool Mpd::connect( const string& host ) {
 }
 
 void Mpd::off() {
-	cout << "Turn OFF\n";
+	LOG( logDEBUG ) << "Turn OFF\n";
 	assert( !"Mpd::off() is unimplemented" );
 }
 
 void Mpd::on() {
-	cout << "Turn ON\n";
+	LOG( logDEBUG ) << "Turn ON\n";
 	assert( !"Mpd::on() is unimplemented" ) ;
 }
 
@@ -64,7 +66,7 @@ void Mpd::toggleOnOff( bool& isOn ) {
 void Mpd::toggleOnOff() {
 	assert( connection_ );
 
-	cout << "Toggle ON/OFF\n";
+	LOG( logDEBUG ) << "Toggle ON/OFF\n";
 
 	mpd_status* status = mpd_run_status( connection_ );
 	if ( status ) {
@@ -74,19 +76,19 @@ void Mpd::toggleOnOff() {
 		switch( state ) {
 		case MPD_STATE_UNKNOWN:
 		case MPD_STATE_STOP:
-			cout << "Send Play" << endl;
+			LOG( logDEBUG ) << "Send Play" << endl;
 			mpd_run_play( connection_ );
 			isOn_ = true;
 			break;
 
 		case MPD_STATE_PAUSE:
-			cout << "Send pause false" << endl;
+			LOG( logDEBUG ) << "Send pause false" << endl;
 			mpd_run_pause( connection_, false );
 			isOn_ = true;
 			break;
 
 		case MPD_STATE_PLAY:
-			cout << "Send pause true" << endl;
+			LOG( logDEBUG ) << "Send pause true" << endl;
 			mpd_run_pause( connection_, true );
 			isOn_ = false;
 			break;
@@ -98,13 +100,13 @@ void Mpd::toggleOnOff() {
 
 void Mpd::previousTrack() {
 	assert( connection_ );
-	cout << "PREV track\n";
+	LOG( logDEBUG ) << "PREV track\n";
 	mpd_run_previous( connection_ );
 }
 
 void Mpd::nextTrack() {
 	assert( connection_ );
-	cout << "NEXT track\n";
+	LOG( logDEBUG ) << "NEXT track\n";
 	mpd_run_next( connection_ );
 }
 
@@ -115,7 +117,7 @@ void Mpd::deltaVolume( int deltaPercent ) {
 		int volume = mpd_status_get_volume( status );
 		mpd_status_free( status );
 
-		cout << "VOL: " << volume << endl;
+		LOG( logDEBUG ) << "VOL: " << volume << endl;
 		volume += deltaPercent;
 
 		if ( volume < 0 ) volume = 0;
@@ -136,7 +138,7 @@ void Mpd::volumeUp( unsigned& percentOn ) {
 
 void Mpd::volumeUp() {
 	deltaVolume( 5 );
-	cout << "Volume UP " << volumePercent_ << "\n";
+	LOG( logDEBUG ) << "Volume UP " << volumePercent_ << "\n";
 }
 
 void Mpd::volumeDown( unsigned& percentOn ) {
@@ -145,7 +147,7 @@ void Mpd::volumeDown( unsigned& percentOn ) {
 }
 
 void Mpd::volumeDown() {
-	cout << "Volume DOWN " << volumePercent_ << "\n";
+	LOG( logDEBUG ) << "Volume DOWN " << volumePercent_ << "\n";
 	deltaVolume( -5 );
 }
 

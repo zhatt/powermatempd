@@ -2,6 +2,7 @@
 #include "powermatempd.h"
 #include "powermate.h"
 #include "mpd.h"
+#include "log.h"
 
 #include <iostream>
 #include <cstdlib>
@@ -132,7 +133,7 @@ void PowermateMpd::run() {
 		mpd_.idleEnd( stateChanged );
 		if ( stateChanged ) {
 			bool isOn = mpd_.getIsOn();
-			cout << "State changed" << " " << isOn << endl;
+			LOG( logDEBUG) << "State changed" << " " << isOn << endl;
 			ledOnOff( isOn );
 		}
 

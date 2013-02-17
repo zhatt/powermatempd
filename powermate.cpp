@@ -1,4 +1,5 @@
 #include "powermate.h"
+#include "log.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -219,7 +220,7 @@ void Powermate::processEvent( const input_event& event ) {
 			state_.pressed_ = event.value;
 
 			if ( traceEvents_ ) {
-				cout << "Button was "
+				LOG( logDEBUG ) << "Button was "
 				     << ( event.value ? "pressed" : "released" )
 				     << endl;
 			}
